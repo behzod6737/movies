@@ -43,6 +43,8 @@ renderMuvieList(films,genreCardList)
 function handleSubmit(e){ 
 	e.preventDefault()
 	genreCardList.innerHTML = ''
+	if(genreSelect.value.trim() === 'All' || genreSelect.value === '' ) renderMuvieList(films,genreCardList)
+	
 	renderMuvieList(films.filter(film => film.genres.includes(genreSelect.value)), genreCardList)
 }
 
