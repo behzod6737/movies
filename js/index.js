@@ -40,9 +40,6 @@ function renderGenresList(genre, element) {
   }
 renderMuvieList(films,genreCardList)
 
-
-
-
 function handleSubmit(e){ 
 	e.preventDefault()
 	genreCardList.innerHTML = ''

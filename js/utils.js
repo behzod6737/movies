@@ -9,9 +9,3 @@ const convertTime = (time	) =>{
 	releaseDate +=`/${date.getFullYear()}`;
 	return releaseDate
 }
-
-// const array = ['fruits : olma','fruits : banan', 'auto: docha', 'auto: somsa']
-
-// const newArr = array.filter(item => item.includes('fruit'))
-
-// console.log(newArr);
