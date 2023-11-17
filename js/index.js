@@ -1,53 +1,83 @@
-const genreSelect = getElement("#gender-filter");
-const genreCardList = getElement(".movies__list");
-const eltemplate = getElement(".template").content;
+// ? caller from dom node
+const getElement = (element, parentElement = document) => {
+  return parentElement.querySelector(element);
+};
+
+const elList = getElement(".movies__list");
+const elTemplate = getElement(".template").content;
+const elForm = getElement(".site-header__form");
+const elSelect = getElement(".filter-form__select");
+
+// ? fixing  unix time into real time
+const fixDate = (date) => {
+  const newDate = new Date(date * 1000);
+  let releaseDate = "";
+  releaseDate += String(newDate.getDate()).padStart(2, "0");
+  releaseDate += ` -${String(newDate.getMonth() + 1).padStart(2, "0")}- `;
+  releaseDate += String(newDate.getFullYear()).padStart(2, "0");
+  return releaseDate;
+};
+
+// ? render movie card genre
+const renderGenres = (genre, goingElement) => {
+  const newLi = document.createElement("li");
+  newLi.className = "movie-card__genre badge";
+  newLi.textContent = genre;
+  goingElement.append(newLi);
+};
+
+// ! render movie form filter
+const renderFilter = (genres, goingElement) => {
+  goingElement.innerHTML = null;
+  goingElement.innerHTML =' <option value="" disabled selected>filter by gender</option>';
+
+  const filterFragment = document.createDocumentFragment();
+  genres.forEach((genre) => {
+    const newOption = document.createElement("option");
+    newOption.textContent = genre.name.toUpperCase();
+    newOption.id = genre.id;
+    newOption.value = genre.name;
+    filterFragment.append(newOption);
+  });
+  goingElement.append(filterFragment);
+};
 
 
-const renderMuvieList = (films, element) => {
-	const cardFragment = document.createDocumentFragment()
-	films.forEach((item) => {
-		const elMuvieTemplate = eltemplate.cloneNode(true)
-		getElement('.movie-card__poster',elMuvieTemplate).src = item.poster
-		getElement('.movie-card__link',elMuvieTemplate).textContent = item.title
-		getElement('.movie-card__overview',elMuvieTemplate).textContent = item.overview
-		getElement('.movie-card__release-date',elMuvieTemplate).textContent = convertTime(item.release_date,)
-		item.genres.forEach((itm) =>{
-			renderGenresList(itm, getElement('.movie-card__genres',elMuvieTemplate))
-		})
-		cardFragment.append(elMuvieTemplate)
-	});
-		genreCardList.append(cardFragment)
+// ! render movie cards
+const renderList = (films, goingElement) => {
+  goingElement.innerHTML = null;
+  const fragment = document.createDocumentFragment();
 
-	const rendergenreSelect = (arr,element) => {
-		const genresFragment = document.createDocumentFragment()
-		element.innerHTML = null 
-		element.innerHTML = '<option id="option__disabled" value="" disabled selected>filter by gender</option>'
-		arr.forEach((i) => {
-			const FilterOption = createElement('option')
-			FilterOption.textContent = i.name.toUpperCase()
-			FilterOption.value = i.name
-			genresFragment.append(FilterOption)
-		})
-		element.append(genresFragment)
-	}
-	rendergenreSelect(genres,genreSelect)
-}
-function renderGenresList(genre, element) {   
-	const GanreLi = createElement("li");
-	GanreLi.className = "movie-card__genre badge";
-	GanreLi.textContent = genre;
-	element.append(GanreLi);
+  for (let film of films) {
+    const template = elTemplate.cloneNode(true);
+    getElement(".movies__item", template).id = film.id;
+    getElement(".movie-card__poster", template).src = film.poster;
+    getElement(".movie-card__link", template).textContent = film.title;
+    getElement(".movie-card__overview", template).textContent = film.overview;
+    getElement(".movie-card__release-date", template).textContent = fixDate(
+      film.release_date
+    );
+    film.genres.forEach((genre) => {
+      renderGenres(genre, getElement(".movie-card__genres", template));
+    });
+    fragment.append(template);
   }
-renderMuvieList(films,genreCardList)
+  goingElement.append(fragment);
+  renderFilter(genres, elSelect);
+};
+renderList(films, elList);
 
-function handleSubmit(e){ 
-	e.preventDefault()
-	genreCardList.innerHTML = ''
-	if(genreSelect.value.trim() === 'All' || genreSelect.value === '' ) renderMuvieList(films,genreCardList)
-	
-	renderMuvieList(films.filter(film => film.genres.includes(genreSelect.value)), genreCardList)
-}
+// ! logic about submitting
+const handleSubmit = (e) => {
+  e.preventDefault();
 
+  console.log(elSelect.value);
+  if(elSelect.value.trim() === 'All' || elSelect.value === '' ){
+	return  renderList(films,elList)
 
-getElement('.filter-form').addEventListener('submit', handleSubmit)
+  }
+  renderList(films.filter((film) => film.genres.includes(elSelect.value)),elList);
+  e.target.reset()
+};
 
+elForm.addEventListener("submit", handleSubmit);
